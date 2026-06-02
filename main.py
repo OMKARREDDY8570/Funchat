@@ -156,6 +156,13 @@ class FunChatBot:
         """Handle errors in the bot."""
         logger.error("Exception while handling update:", exc_info=context.error)
 
+    async def handle_webhook(self, request: web.Request):
+        data = await request.json()
+        update = Update.de_json(data, self.app.bot)
+
+        await self.app.process_update(update)
+        return web.Response(text="OK")
+    
     async def run_webhook(self) -> None:
         """Run bot in webhook mode (production)."""
         webhook_url = f"{self.config.WEBHOOK_URL}/webhook/{self.config.BOT_TOKEN}"
@@ -190,16 +197,6 @@ class FunChatBot:
             while True:
                 await asyncio.sleep(3600)
 
-    await self.app.process_update(update)
-    return web.Response(text="OK")
-
-
-    async def handle_webhook(self, request: web.Request):
-        data = await request.json()
-        update = Update.de_json(data, self.app.bot)
-
-    await self.app.process_update(update)
-    return web.Response(text="OK")
 
     async def run_polling(self) -> None:
         """Run bot in polling mode (development)."""
