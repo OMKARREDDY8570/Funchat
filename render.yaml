@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: funchatbot
+    env: python
+    region: singapore  # Closest to India for low latency
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python main.py
+    healthCheckPath: /health
+    envVars:
+      - key: BOT_TOKEN
+        sync: false   # Set manually in Render dashboard
+      - key: ADMIN_IDS
+        sync: false
+      - key: DATABASE_PATH
+        value: /data/funchatbot.db
+      - key: WEBHOOK_URL
+        fromService:
+          name: funchatbot
+          type: web
+          property: host
+      - key: PORT
+        value: 8080
+      - key: AI_API_KEY
+        sync: false   # Optional
+      - key: PYTHON_VERSION
+        value: "3.11.0"
+
+disks:
+  - name: funchatbot-data
+    mountPath: /data
+    sizeGB: 1
