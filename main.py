@@ -190,6 +190,10 @@ class FunChatBot:
             while True:
                 await asyncio.sleep(3600)
 
+    await self.app.process_update(update)
+    return web.Response(text="OK")
+
+
     async def handle_webhook(self, request: web.Request):
         data = await request.json()
         update = Update.de_json(data, self.app.bot)
