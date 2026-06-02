@@ -164,6 +164,7 @@ class FunChatBot:
         self.web_app = web.Application()
         self.web_app.router.add_get("/health", self._health_check)
         self.web_app.router.add_get("/", self._health_check)
+        self.web_app.router.add_post(f"/webhook/{self.config.BOT_TOKEN}",self.handle_webhook)
 
         await self.app.initialize()
         await self.app.bot.set_webhook(
@@ -188,6 +189,13 @@ class FunChatBot:
             # Keep alive
             while True:
                 await asyncio.sleep(3600)
+
+    async def handle_webhook(self, request: web.Request):
+        data = await request.json()
+        update = Update.de_json(data, self.app.bot)
+
+    await self.app.process_update(update)
+    return web.Response(text="OK")
 
     async def run_polling(self) -> None:
         """Run bot in polling mode (development)."""
